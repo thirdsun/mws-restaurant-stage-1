@@ -64,6 +64,9 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 #footerLarge {
 	display: none;
 }
+#footer a:focus {
+	color: #ff6600;
+}
 /* ====================== Navigation ====================== */
 header {
 	width: 100%;
@@ -85,6 +88,10 @@ nav h1 a {
   font-weight: 200;
   letter-spacing: 10px;
   text-transform: uppercase;
+}
+nav h1 a:focus {
+	outline:none;
+	color: #ff6600;
 }
 #breadcrumb {
     padding: 10px 40px 16px;
@@ -128,6 +135,7 @@ nav h1 a {
   height: 400px;
   width: 100%;
   background-color: #ccc;
+	tabindex: -1;
 }
 /* ====================== Restaurant Filtering ====================== */
 #options-container {
@@ -163,6 +171,12 @@ nav h1 a {
   width: 200px;
 }
 
+.filter-options select:focus {
+	outline: none;
+	border-radius: 5px;
+	border: 3px solid #ff6600;
+}
+
 /* ====================== Restaurant Listing ====================== */
 #restaurants-list {
   background-color: #f3f3f3;
@@ -189,7 +203,7 @@ nav h1 a {
   width: 100%;
 }
 #restaurants-list li h1 {
-  color: #f18200;
+  color: #444444;
   font-family: Arial,sans-serif;
   font-size: 14pt;
   font-weight: 200;
@@ -203,7 +217,7 @@ nav h1 a {
   font-size: 11pt;
 }
 #restaurants-list li a {
-  background-color: orange;
+  background-color: #005e8e;
   border-bottom: 3px solid #eee;
   color: #fff;
   display: inline-block;
@@ -213,6 +227,11 @@ nav h1 a {
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
+}
+#restaurants-list li a:focus {
+	outline: none;
+	border-radius: 5px;
+	border: 3px solid #ff6600;
 }
 
 /* ====================== Restaurant Details ====================== */
@@ -341,13 +360,14 @@ nav h1 a {
 		#options-container {
 			width: 40%;
 			height: 400px;
-			background-color: #3397DB;
+			background-color: #007dbb;
 		}
 		.filter-options {
 			padding-top: 25%;
 			align-items: center;
 			margin: auto;
 			height: 400px;
+			background-color: #007dbb;
 		}
 		.filter-options select {
 		  width: 50%;
