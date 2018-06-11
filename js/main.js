@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 */
 registerServiceWorker = ()=> {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/js/sw.js');
+    navigator.serviceWorker.register('/sw.js');
   }
 }
 
@@ -171,6 +171,7 @@ createRestaurantHTML = (restaurant) => {
   const more = document.createElement('a');
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
+  more.setAttribute('aria-label', 'View Details');
   li.append(more)
 
   return li

@@ -387,7 +387,7 @@ nav h1 a:focus {
 	}
 
 	#reviews-container {
-		width:50%;
+		width:100%;
 	}
 
 @media screen and (min-width: 992px) {

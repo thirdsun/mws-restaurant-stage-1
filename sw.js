@@ -9,7 +9,7 @@ self.addEventListener('install', function(event) {
         '/js/restaurant_info.js',
         '/css/styles.css',
         '/data/restaurants.json',
-        '/',
+        '/index.html',
         '/restaurant.html',
         '/img/1-400_small_1x.jpg',
         '/img/1-800_large_2x.jpg',
@@ -35,3 +35,16 @@ self.addEventListener('install', function(event) {
     })
   );
 });
+
+self.addEventListener('fetch', function(event) {
+  event.respondWith(
+    caches.match(event.request)
+    .then(function(response){
+      // Return response
+      if (response) {
+        return response;
+      }
+      return fetch(event.request);
+    })
+  )
+})
