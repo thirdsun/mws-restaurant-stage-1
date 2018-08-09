@@ -25,7 +25,7 @@ registerServiceWorker = ()=> {
 /**
  * Fetch all neighborhoods and set their HTML.
  */
-fetchNeighborhoods = () => {
+const fetchNeighborhoods = () => {
   DBHelper.fetchNeighborhoods((error, neighborhoods) => {
     if (error) { // Got an error
       console.error(error);
@@ -39,7 +39,7 @@ fetchNeighborhoods = () => {
 /**
  * Set neighborhoods HTML.
  */
-fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
+const fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
   neighborhoods.forEach(neighborhood => {
     const option = document.createElement('option');
@@ -66,7 +66,7 @@ fetchCuisines = () => {
 /**
  * Set cuisines HTML.
  */
-fillCuisinesHTML = (cuisines = self.cuisines) => {
+const fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
 
   cuisines.forEach(cuisine => {
@@ -96,7 +96,7 @@ window.initMap = () => {
 /**
  * Update page and map for current restaurants.
  */
-updateRestaurants = () => {
+const updateRestaurants = () => {
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
 
@@ -113,13 +113,13 @@ updateRestaurants = () => {
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
     }
-  })
+  });
 }
 
 /**
  * Clear current restaurants, their HTML and remove their map markers.
  */
-resetRestaurants = (restaurants) => {
+const resetRestaurants = (restaurants) => {
   // Remove all restaurants
   self.restaurants = [];
   const ul = document.getElementById('restaurants-list');
@@ -150,10 +150,13 @@ createRestaurantHTML = (restaurant) => {
 
   const image = document.createElement('img');
   image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  image.sizes = DBHelper.imageSizesForRestaurant(restaurant);
-  image.srcset = DBHelper.imageSrcSetForRestaurant(restaurant);
-  image.alt = DBHelper.imageAltForRestaurant(restaurant);
+  const imageBase = DBHelper.imageUrlForRestaurant(restaurant);
+  const image1x = imageBase + "-400_small_1x.jpg";
+  const image2x = imageBase + "-800_large_2x.jpg";
+  image.src = image2x;
+  image.sizes = "(max-width: 767px) 100vw, (min-width: 768px) 50vw";
+  image.srcset = `${image1x} 400w, ${image2x} 800w`;
+  image.alt = "A picture from " + restaurant.name;
   li.append(image);
 
   const name = document.createElement('h1');
