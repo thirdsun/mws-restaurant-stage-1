@@ -23,7 +23,7 @@ class DBHelper {
     if (!id) {
       fetchUrl = DBHelper.DATABASE_URL;
     } else {
-      fetchUrl = DBhelper.DATABASE_URL + "/" + id;
+      fetchUrl = DBHelper.DATABASE_URL + "/" + id;
     }
 
     fetch(fetchUrl, {method: "GET"}).then(response => {
