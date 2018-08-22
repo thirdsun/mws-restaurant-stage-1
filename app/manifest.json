@@ -1,0 +1,14 @@
+{
+  "short_name": "FoodReviews",
+  "name": "Restaurant Reviews for Udacity Project",
+  "icons": [
+    { "src": "icons/app_icon-1x.png", "type": "image/png", "sizes": "48x48" },
+    { "src": "icons/app_icon-2x.png", "type": "image/png", "sizes": "96x96" },
+    { "src": "icons/app_icon-4x.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icons/app_icon-10x.png", "type": "image/png", "sizes": "512x512" }
+  ],
+  "start_url": "index.html",
+  "background_color": "#7e9dfb",
+  "theme_color": "#7e9dfb",
+  "display": "fullscreen"
+}
