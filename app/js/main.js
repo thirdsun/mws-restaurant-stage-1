@@ -88,7 +88,10 @@ window.initMap = () => {
   self.map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
     center: loc,
-    scrollwheel: false
+    scrollwheel: false,
+    zoomControl: false,
+    streetViewControl: false,
+    fullscreenControl: false
   });
   updateRestaurants();
 }
@@ -149,14 +152,16 @@ createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
-  image.className = 'restaurant-img';
+  image.className = ('restaurant-img' + ' lazyload');
   const imageBase = DBHelper.imageUrlForRestaurant(restaurant);
   const image1x = imageBase + '-400_small_1x.jpg';
   const image2x = imageBase + '-800_large_2x.jpg';
-  image.src = image2x;
+  const placeholder = '/img/placeholder.jpg';
+  image.src = placeholder;
   image.sizes = '(max-width: 767px) 100vw, (min-width: 768px) 50vw';
-  image.srcset = `${image1x} 400w, ${image2x} 800w`;
   image.alt = 'A picture from ' + restaurant.name;
+  image.setAttribute('data-src', `${image2x}`);
+  image.setAttribute('data-srcset', `${image1x} 400w, ${image2x} 800w`);
   li.append(image);
 
   const name = document.createElement('h1');
@@ -179,7 +184,6 @@ createRestaurantHTML = (restaurant) => {
 
   return li
 }
-
 /**
  * Add markers for current restaurants to the map.
  */

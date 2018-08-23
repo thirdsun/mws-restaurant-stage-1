@@ -8,6 +8,8 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" media="screen and (min-width: 768px) and (max-width: 991px)" href="css/tablet.css" />
+  <link rel="stylesheet" media="screen and (min-width: 992px)" href="css/desktop.css" />
   <title>Restaurant Reviews</title>
 </head>
 
@@ -42,7 +44,8 @@
   <script type="application/javascript" charset="utf-8" src="js/dbhelper.js"></script>
   <script type="application/javascript" charset="utf-8" src="js/main.js"></script>
   <script type="application/javascript" charset="utf-8" src="js/serviceWorker.js"></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJWEpFRPm14i7o4qjZIS-xaAHVeYnl3j4&libraries=places&callback=initMap"></script>
+  <script src="js/lazysizes.min.js" async=""></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?format=jpg&key=AIzaSyBJWEpFRPm14i7o4qjZIS-xaAHVeYnl3j4&libraries=places&callback=initMap"></script>
 
   <footer id="footer">
     <span id="footerSmall">Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a><br> All Rights Reserved.</span>
