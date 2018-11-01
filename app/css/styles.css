@@ -240,6 +240,21 @@ nav h1 a:focus {
   text-transform: uppercase;
 }
 
+#restaurants-list .favorite-button {
+	max-width: 25px;
+  max-height: 25px;
+  right: 20px;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  background-color: inherit;
+  border: none;
+  margin: 0;
+  padding: 0;
+  color: transparent;
+	font-size: 2px;
+}
+
 #restaurants-list p {
   margin: 0;
   font-size: 11pt;

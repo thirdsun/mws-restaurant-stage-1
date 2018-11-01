@@ -2,8 +2,16 @@ importScripts('js/idb.js');
 
 var staticCacheName = 'Restaurant-Reviews-V4';
 
-const dbPromise = idb.open('restaurant-db', 1, upgradeDB => {
-  upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+const dbPromise = idb.open('restaurant-db', 2, upgradeDB => {
+  switch (upgradeDB.oldVersion) {
+    case 0:
+      upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+    case 1:
+      upgradeDB.createObjectStore('pending', {
+        keyPath: 'id',
+        autoIncrement: true
+      });
+  }
 });
 
 self.addEventListener('install', function(event) {

@@ -4,8 +4,16 @@
 let NeighborhoodsList;
 let CuisinesList;
 
-const dbPromise = idb.open('restaurant-db', 1, upgradeDB => {
-  upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+const dbPromise = idb.open('restaurant-db', 2, upgradeDB => {
+  switch (upgradeDB.oldVersion) {
+    case 0:
+      upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+    case 1: 
+      upgradeDB.createObjectStore('pending', {
+        keyPath: 'id',
+        autoIncrement: true
+      });
+  }
 });
 
 class DBHelper {
@@ -221,6 +229,85 @@ class DBHelper {
     return marker;
   }
 
+  static addRequestToQueue(url, method, body) {
+    const dbPromise = idb.open('restaurant-db');
+    dbPromise.then(db => {
+      const tx = db.transaction('pending', 'readwrite');
+      tx.objectStore('pending')
+        .put({
+          data: {
+            url,
+            method,
+            body
+          }
+        })
+    }).catch(error => {})
+      .then(DBHelper.nextRequest());
+  }
+
+  static nextRequest() {
+    DBHelper.commitRequest(DBHelper.nextRequest);
+  }
+
+  static commitRequest(callback) {
+    let url;
+    let method;
+    let body;
+
+    dbPromise.then(db => {
+      if (!db.objectStoreNames.length) {
+        console.log('no database found');
+        db.close();
+        return;
+      }
+
+      const tx = db.transaction('pending', 'readwrite');
+      tx.objectStore('pending')
+        .openCursor()
+        .then(cursor => {
+          if (!cursor) {
+            return;
+          }
+          const value = cursor.value;
+          url = cursor.value.data.url;
+          method = cursor.value.data.method;
+          body = cursor.value.data.body;
+
+          if ((!url || !method) || (method === 'POST' && !body)) {
+            cursor.delete()
+              .then(callback());
+            return;
+          };
+
+          const properties = {
+            body: JSON.stringify(body),
+            method: method
+          }
+          console.log('adding from queue: ', properties);
+          fetch(url, properties)
+            .then(response => {
+              if (!response.ok && !response.redirected) {
+                return;
+              }
+            }).then(() => {
+              const deleteTransaction = db.transaction('pending', 'readwrite');
+              deleteTransaction.objectStore('pending')
+                .openCursor()
+                .then(cursor => {
+                  cursor.delete()
+                    .then(() => {
+                      callback();
+                    })
+                })
+                console.log('deleted pending item from queue')
+            })
+        }).catch(error => {
+          console.log('error with cursor');
+          return;
+        })
+    })
+  }
+
   static updateRestaurantCache(id, updateInfo) {
     const dbPromise = idb.open('restaurant-db');
     dbPromise.then(db => {
@@ -283,6 +370,31 @@ class DBHelper {
           })
         })
     })
+  }
+
+  static updateFavorite(id, newState, callback) {
+    const url = `${DBHelper.DATABASE_URL}/${id}/?is_favorite=${newState}`;
+    const method = 'PUT';
+    DBHelper.updateRestaurantCache(id, {'is_favorite': newState});
+    DBHelper.addRequestToQueue(url, method);
+
+    callback(null, {id, value: newState});
+  }
+
+  static handleFavoriteClick(id, newState) {
+    const fav = document.getElementById('favorite-' + id);
+    fav.onclick = null;
+
+    DBHelper.updateFavorite(id, newState, (error, resultObj) => {
+      if (error) {
+        console.log('Error Updating Favorite');
+        return;
+      }
+      const favorite = document.getElementById('favorite-' + resultObj.id);
+      favorite.style.background = resultObj.value
+        ? `url('/icons/favorite.svg') no-repeat`
+        : `url('/icons/not_favorite.svg') no-repeat`;
+    });
   }
 
 }
