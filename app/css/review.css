@@ -1,0 +1,70 @@
+@charset "utf-8";
+
+#restaurant-container {
+  border-bottom: 1px solid #d9d9d9;
+  border-top: 1px solid #fff;
+  width: 100%;
+}
+
+#restaurant-name {
+  color: #444444;
+  font-family: Arial,sans-serif;
+  font-size: 1.75rem;
+  font-weight: 200;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  line-height: 1.1;
+	padding-top: 2rem;
+	text-align: center;
+}
+
+#restaurant-img {
+	width: 100%;
+}
+
+#review-form {
+  width: 100%;
+}
+
+.review-label {
+  display: block;
+  font-size: 1.25rem;
+  width: 90%;
+  margin-top: 1rem;
+  margin-left: 3%;
+}
+
+.review-input {
+  display: block;
+  font-size: 1.25rem;
+  text-align: left;
+}
+
+#reviewName {
+  margin-left: 3%;
+  min-width: 15rem;
+}
+
+#reviewRating {
+  margin-left: 3%;
+}
+
+#reviewComment {
+  display: block;
+  font-size: 1.25rem;
+  margin-left: 3%;
+  max-width: 95%;
+}
+
+#reviewButton {
+  background-color: #005e8e;
+  color: #fff;
+  display: block;
+  font-size: 1.25rem;
+  min-width: 25%;
+  margin-left: 3%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}

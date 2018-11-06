@@ -21,7 +21,8 @@ window.initMap = () => {
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
     }
   });
-}
+  DBHelper.nextRequest();
+};
 
 /**
  * Get current restaurant from page URL.
@@ -52,6 +53,24 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+
+  const div = document.getElementById("restaurant-container");
+  const isFavorite = (restaurant["is_favorite"] && restaurant["is_favorite"].toString() === "true") ? true : false;
+  const favoriteDiv = document.createElement('div');
+  favoriteDiv.id = 'favoriteDiv';
+  const favorite = document.createElement('button');
+  favorite.className = 'favorite-button';
+  favorite.style.background = isFavorite
+    ? `url('/icons/favorite.svg') no-repeat`
+    : `url('/icons/not_favorite.svg') no-repeat`;
+  favorite.innerHTML = isFavorite
+    ? restaurant.name + ' is a favorite'
+    : restaurant.name + ' is not a favorite';
+  favorite.id = 'favorite-button-' + restaurant.id;
+  favorite.onclick = event => handleFavoriteClick(restaurant.id, !isFavorite);
+  favoriteDiv.append(favorite);
+  div.append(favoriteDiv);
+
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -76,7 +95,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
   // fill reviews
-  fillReviewsHTML();
+  DBHelper.fetchReviewsById(restaurant.id, fillReviewsHTML)
 }
 
 /**
@@ -102,11 +121,23 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = (error, reviews) => {
+  self.restaurant.reviews = reviews;
+
+  if (error) {
+    console.log('error with getting reviews: ', error);
+  }
+
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+  addReview = document.createElement('a');
+  addReview.href = `/review.html?id=${self.restaurant.id}`;
+  addReview.id = 'addReview';
+  addReview.innerHTML = 'Add a Review';
+  container.appendChild(addReview);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -131,7 +162,8 @@ createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  const created = review.createdAt;
+  date.innerHTML = new Date(created).toLocaleString();
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -171,3 +203,10 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+handleFavoriteClick = (id, newState) => {
+  const favorite = document.getElementById('favorite-button-' + id);
+  self.restaurant['is_favorite'] = newState;
+  favorite.onclick = event => handleFavoriteClick(restaurant.id, !self.restaurant['is_favorite']);
+  DBHelper.handleFavoriteClick(id, newState);
+};

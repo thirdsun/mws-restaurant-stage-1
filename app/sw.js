@@ -1,8 +1,8 @@
 importScripts('js/idb.js');
 
-var staticCacheName = 'Restaurant-Reviews-V4';
+var staticCacheName = 'Restaurant-Reviews-V5';
 
-const dbPromise = idb.open('restaurant-db', 2, upgradeDB => {
+const dbPromise = idb.open('restaurant-db', 3, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
       upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
@@ -11,6 +11,11 @@ const dbPromise = idb.open('restaurant-db', 2, upgradeDB => {
         keyPath: 'id',
         autoIncrement: true
       });
+    case 2:
+      {
+        const reviewsStore = upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
+        reviewsStore.createIndex('restaurant_id', 'restaurant_id');
+      }
   }
 });
 
@@ -22,11 +27,13 @@ self.addEventListener('install', function(event) {
         '/js/main.js',
         '/js/dbhelper.js',
         '/js/restaurant_info.js',
+        '/js/reviews.js',
         '/css/styles.css',
         '/css/tablet.css',
         'css/desktop.css',
         '/index.html',
         '/restaurant.html',
+        '/review.html',
         '/img/1-400_small_1x.jpg',
         '/img/1-800_large_2x.jpg',
         '/img/2-400_small_1x.jpg',
@@ -79,11 +86,57 @@ self.addEventListener('fetch', event => {
   }
 });
 
-const fetchHandler = (event, id) => {
+fetchHandler = (event, id) => {
+  if (event.request.method !== 'GET') {
+    return fetch(event.request)
+      .then(fetchResponse => fetchResponse.json())
+      .then(json => {
+        return json
+      });
+  }
+
+  if (event.request.url.indexOf('reviews') > -1) {
+    handleReviewsEvent(event, id);
+  } else {
+    handleRestaurantEvent(event, id);
+  }
+};
+
+handleReviewsEvent = (event, id) => {
+  event.respondWith(dbPromise.then(db => {
+    return db.transaction('reviews')
+      .objectStore('reviews')
+      .index('restaurant_id')
+      .getAll(id);
+  }).then(data => {
+    return (data.length && data) || fetch(event.request)
+      .then(fetchResponse => fetchResponse.json())
+      .then(data => {
+        return dbPromise.then(idb => {
+          const itx = idb.transaction('reviews', 'readwrite');
+          const store = itx.objectStore('reviews');
+          data.forEach(review => {
+            store.put({id: review.id, 'restaurant_id': review['restaurant_id'], data: review});
+          })
+          return data;
+        })
+      })
+  }).then(finalResponse => {
+    if (finalResponse[0].data) {
+      const mapResponse = finalResponse.map(review => review.data);
+      return new Response(JSON.stringify(mapResponse));
+    }
+    return new Response(JSON.stringify(finalResponse));
+  }).catch(error => {
+    return new Response('Error fetching data', {status:500})
+  }))
+}
+
+handleRestaurantEvent = (event, id) => {
   event.respondWith(dbPromise.then(db => {
     return db.transaction('restaurants')
       .objectStore('restaurants')
-      .get(id);
+      .get(id)
   }).then(data => {
     return (data && data.data) || fetch(event.request)
       .then(fetchResponse => fetchResponse.json())
@@ -98,16 +151,18 @@ const fetchHandler = (event, id) => {
   }).then(finalResponse => {
     return new Response(JSON.stringify(finalResponse));
   }).catch(error => {
-    return new Response('Error receiving data', {status: 500});
+    return new Response('Error fetching data', {status:500})
   }));
 };
 
-const nonFetchHandler = (event, newRequest) => {
+nonFetchHandler = (event, newRequest) => {
   event.respondWith(caches.match(newRequest).then(response => {
     return (response || fetch(event.request).then(fetchResponse => {
       return caches.open(staticCacheName)
         .then(cache => {
-          cache.put(event.request, fetchResponse.clone());
+          if (fetchResponse.url.indexOf('browser-sync') === -1) {
+            cache.put(event.request, fetchResponse.clone());
+          }
           return fetchResponse;
         });
     }).catch(error => {

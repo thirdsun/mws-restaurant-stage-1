@@ -89,7 +89,7 @@ nav {
   height: 80px;
 	line-height: 80px;
   background-color: #252831;
-  text-align:center;
+  text-align: center;
 }
 
 nav h1 {
@@ -117,6 +117,7 @@ nav h1 a:focus {
     font-size: 17px;
     margin: 0;
     width: 100%;
+		text-align: left;
 }
 
 /* Display list items side by side */
@@ -253,6 +254,26 @@ nav h1 a:focus {
   padding: 0;
   color: transparent;
 	font-size: 2px;
+	margin-bottom: 10px;
+}
+
+#favoriteDiv .favorite-button {
+	max-width: 30px;
+  max-height: 30px;
+  right: 20px;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  background-color: inherit;
+  border: none;
+  margin: 15px;
+  padding: 0;
+  color: transparent;
+	font-size: 2px;
+}
+
+#addReview {
+	padding-left: 3%;
 }
 
 #restaurants-list p {

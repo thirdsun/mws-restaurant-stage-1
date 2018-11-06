@@ -1,8 +1,8 @@
 let restaurants,
   neighborhoods,
-  cuisines
-var map
-var markers = []
+  cuisines;
+var map;
+var markers = [];
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 /**
  * Fetch all neighborhoods and set their HTML.
  */
-const fetchNeighborhoods = () => {
+fetchNeighborhoods = () => {
   DBHelper.fetchNeighborhoods((error, neighborhoods) => {
     if (error) { // Got an error
       console.error(error);
@@ -39,7 +39,7 @@ const fetchNeighborhoods = () => {
 /**
  * Set neighborhoods HTML.
  */
-const fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
+fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
   neighborhoods.forEach(neighborhood => {
     const option = document.createElement('option');
@@ -66,7 +66,7 @@ fetchCuisines = () => {
 /**
  * Set cuisines HTML.
  */
-const fillCuisinesHTML = (cuisines = self.cuisines) => {
+fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
 
   cuisines.forEach(cuisine => {
@@ -99,7 +99,7 @@ window.initMap = () => {
 /**
  * Update page and map for current restaurants.
  */
-const updateRestaurants = () => {
+updateRestaurants = () => {
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
 
@@ -122,7 +122,7 @@ const updateRestaurants = () => {
 /**
  * Clear current restaurants, their HTML and remove their map markers.
  */
-const resetRestaurants = (restaurants) => {
+resetRestaurants = (restaurants) => {
   // Remove all restaurants
   self.restaurants = [];
   const ul = document.getElementById('restaurants-list');
@@ -169,7 +169,7 @@ createRestaurantHTML = (restaurant) => {
   li.append(name);
 
   console.log('is_favorite: ', restaurant['is_favorite']);
-  const isFavorite = (restaurant['is_favorite'] && restaurant['is_favorite'].toString() === "true") ? true : false;
+  const isFavorite = (restaurant['is_favorite'] && restaurant['is_favorite'].toString() === 'true') ? true : false;
   const favorite = document.createElement('button');
   favorite.className = 'favorite-button';
   favorite.style.background = isFavorite
@@ -178,7 +178,7 @@ createRestaurantHTML = (restaurant) => {
   favorite.innerHTML = isFavorite
     ? restaurant.name + ' is saved as favorite'
     : restaurant.name + ' is not a favorite';
-  favorite.id = 'favorite-' + restaurant.id;
+  favorite.id = 'favorite-button-' + restaurant.id;
   favorite.onclick = event => handleFavoriteClick(restaurant.id, !isFavorite);
   li.append(favorite);
 
@@ -202,8 +202,8 @@ createRestaurantHTML = (restaurant) => {
 /**
 * Handle click for favorited restaurants
 */
-const handleFavoriteClick = (id, newState) => {
-  const favorite = document.getElementById('favorite-' + id);
+handleFavoriteClick = (id, newState) => {
+  const favorite = document.getElementById('favorite-button-' + id);
   const restaurant = self
     .restaurants
     .filter(r => r.id === id)[0];

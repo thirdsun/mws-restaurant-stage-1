@@ -4,15 +4,20 @@
 let NeighborhoodsList;
 let CuisinesList;
 
-const dbPromise = idb.open('restaurant-db', 2, upgradeDB => {
+const dbPromise = idb.open('restaurant-db', 3, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
       upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
-    case 1: 
+    case 1:
       upgradeDB.createObjectStore('pending', {
         keyPath: 'id',
         autoIncrement: true
       });
+    case 2:
+      {
+        const reviewsStore = upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
+        reviewsStore.createIndex('restaurant_id', 'restaurant_id');
+      }
   }
 });
 
@@ -25,6 +30,11 @@ class DBHelper {
   static get DATABASE_URL() {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/restaurants`;
+  }
+
+  static get DATABASE_REVIEWS_URL() {
+    const port = 1337;
+    return `http://localhost:${port}/reviews`;
   }
 
   /**
@@ -72,10 +82,22 @@ class DBHelper {
         if (restaurant) { // Got the restaurant
           callback(null, restaurant);
         } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
+          callback('There is no restaurant by that name.', null);
         }
       }
     }, id);
+  }
+
+  static fetchReviewsById(id, callback) {
+    const fetchURL = DBHelper.DATABASE_REVIEWS_URL + '/?restaurant_id=' + id;
+    fetch(fetchURL, {method: 'GET'}).then(response => {
+      if (!response.clone().ok && !response.clone().redirected) {
+        throw 'No reviews at this time';
+      }
+      response.json().then(result => {
+        callback(null, result);
+      })
+    }).catch(error => callback(error, null));
   }
 
   /**
@@ -328,7 +350,7 @@ class DBHelper {
             return;
           const keys = Object.keys(updateInfo);
           keys.forEach(k => {
-            restObject[k] = updateInfo[k]
+            restObject[k] = updateInfo[k];
           })
 
           dbPromise.then(db => {
@@ -382,7 +404,7 @@ class DBHelper {
   }
 
   static handleFavoriteClick(id, newState) {
-    const fav = document.getElementById('favorite-' + id);
+    const fav = document.getElementById('favorite-button-' + id);
     fav.onclick = null;
 
     DBHelper.updateFavorite(id, newState, (error, resultObj) => {
@@ -390,14 +412,57 @@ class DBHelper {
         console.log('Error Updating Favorite');
         return;
       }
-      const favorite = document.getElementById('favorite-' + resultObj.id);
+      const favorite = document.getElementById('favorite-button-' + resultObj.id);
       favorite.style.background = resultObj.value
         ? `url('/icons/favorite.svg') no-repeat`
         : `url('/icons/not_favorite.svg') no-repeat`;
     });
   }
 
-}
+  static updateCachedReview(id, bodyObj) {
+    console.log('updating review: ', bodyObj);
+    dbPromise.then(db => {
+      const tx = db.transaction('reviews', 'readwrite');
+      const store = tx.objectStore('reviews');
+      console.log('adding review to store');
+      store.put({
+        id: Date.now(),
+        'restaurant_id': id,
+        data: bodyObj
+      });
+      console.log('review successfully added to store');
+      return tx.complete;
+    })
+  }
 
+  static saveNewReview(id, bodyObj, callback) {
+    const url = `${DBHelper.DATABASE_REVIEWS_URL}`;
+    const method = 'POST';
+    DBHelper.updateCachedReview(id, bodyObj);
+    DBHelper.addRequestToQueue(url, method, bodyObj);
+    callback(null, null)
+  }
+
+  static saveReview(id, name, rating, comment, callback) {
+    const button = document.getElementById('reviewButton');
+    button.onclick = null;
+
+    const body = {
+      restaurant_id: id,
+      name: name,
+      rating: rating,
+      comments: comment,
+      createdAt: Date.now()
+    }
+
+    DBHelper.saveNewReview(id, body, (error, result) => {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+      callback(null, result);
+    })
+  }
+}
 
 window.DBHelper = DBHelper;
